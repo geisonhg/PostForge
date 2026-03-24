@@ -13,6 +13,7 @@ from loguru import logger
 from PIL import Image, ImageDraw
 
 from app.config import get_settings
+from app.integrations.ai_client import ai_client
 from app.services.design_renderer_interface import (
     DesignRendererInterface,
     LayoutMap,
@@ -29,74 +30,95 @@ from app.services.renderers.layers.watermark import draw_watermark
 
 _HF_ENDPOINT = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
 
-# ── Template → visual prompt mapping ────────────────────────────────────────
+# ── Claude generates the FLUX prompt ─────────────────────────────────────────
 
-_TEMPLATE_PROMPTS: dict[str, str] = {
-    "bold_authority": (
-        "Bold dark authority composition, deep navy or charcoal gradient, "
-        "strong geometric lines, subtle gold or white accent edges. "
-        "Professional, commanding, modern abstract background."
-    ),
-    "premium_dark_tech": (
-        "Premium dark technology aesthetic, deep black background, "
-        "glowing cyan or electric blue circuit-like abstract lines and particles, "
-        "futuristic polished high-end tech feel, subtle light bloom effects."
-    ),
-    "educational_card": (
-        "Clean light educational background, soft white or pale blue, "
-        "subtle grid lines and minimal geometric shapes, "
-        "calm trustworthy modern infographic style, plenty of clean space."
-    ),
-    "problem_solution": (
-        "Split-mood abstract background, left side dark moody tones, "
-        "right side bright hopeful light, diagonal division with soft gradient transition, "
-        "represents transformation and solutions."
-    ),
-    "case_study_proof": (
-        "Confident proof-of-results background, dark slate, "
-        "subtle upward trending lines and data visualization shapes, "
-        "gold or green accent elements suggesting growth and achievement."
-    ),
-    "minimal_founder": (
-        "Minimal editorial founder-style background, warm off-white or cream, "
-        "single bold accent color strip, clean lines, sophisticated whitespace, "
-        "subtle texture like linen or paper grain."
-    ),
-    "clean_saas": (
-        "Clean modern SaaS product background, light gray to white gradient, "
-        "soft purple or blue accent shapes, rounded abstract forms, "
-        "airy and modern like a premium software product."
-    ),
-    "image_led_overlay": (
-        "Cinematic vibrant abstract background, rich colors and depth, "
-        "bokeh light effects and layered gradients, dramatic and eye-catching, "
-        "dark enough for white text overlay."
-    ),
-}
+_PROMPT_SYSTEM = """\
+You are an expert art director specializing in high-impact Instagram visuals for digital brands.
+Your job: write ONE image generation prompt for FLUX (a diffusion model) that will serve as the background of an Instagram post.
 
-_COLOR_MOOD_HINTS: dict[str, str] = {
-    "dark":     "Very dark tones, deep shadows, high contrast, dark background.",
-    "light":    "Bright airy tones, light background, soft shadows.",
-    "gradient": "Rich colorful gradient, vibrant and dynamic.",
-}
+The image MUST have text overlaid on top by another system — so never include text, words, letters, or UI elements in the prompt.
+
+Rules:
+- Write a single dense paragraph of 60-120 words
+- Be extremely specific: lighting quality, color palette (use the exact hex codes), textures, atmosphere, composition, depth
+- The visual must emotionally match the post's message and brand tone
+- Specify that the lower half should be slightly darker to ensure text readability
+- End with: "No text, no letters, no logos, no watermarks, no UI. Ultra high quality, 4K, professional photography or high-end digital art."
+- Return ONLY the prompt — no explanations, no labels, nothing else"""
 
 
-def _build_prompt(visual_brief: VisualBrief, brand_config: dict[str, Any]) -> str:
-    base = _TEMPLATE_PROMPTS.get(visual_brief.template_family, _TEMPLATE_PROMPTS["bold_authority"])
-    mood = _COLOR_MOOD_HINTS.get(visual_brief.color_mood, "")
-    vi   = brand_config.get("visual_identity", {})
+def _build_prompt(
+    copy_data: dict[str, Any],
+    visual_brief: VisualBrief,
+    brand_config: dict[str, Any],
+) -> str:
+    vi       = brand_config.get("visual_identity", {})
+    primary  = vi.get("primary_color", "#0057FF")
+    accent   = vi.get("accent_color",  "#00FF88")
+    industry = brand_config.get("industry", "digital agency")
+    brand    = brand_config.get("name", "brand")
+    tone     = brand_config.get("voice", {}).get("tone", "professional")
+    title    = copy_data.get("title") or copy_data.get("overlay_text", "")
+    hook     = copy_data.get("hook", "")
+
+    user_msg = f"""\
+Create a FLUX background image prompt for this Instagram post:
+
+Brand: {brand} ({industry})
+Brand colors: primary={primary}, accent={accent}
+Brand tone: {tone}
+Visual template: {visual_brief.template_family}
+Color mood: {visual_brief.color_mood}
+
+Post headline: "{title}"
+Post hook: "{hook}"
+
+The background must be visually stunning, scroll-stopping, and emotionally aligned with the message above."""
+
+    try:
+        logger.info("Asking Claude to craft FLUX prompt…")
+        prompt = ai_client.complete(user_msg, system=_PROMPT_SYSTEM, max_tokens=200, temperature=0.85)
+        logger.info(f"FLUX prompt (Claude) → {prompt[:120]}…")
+        return prompt.strip()
+    except Exception as e:
+        logger.warning(f"Claude unavailable ({e}), using fallback prompt builder.")
+        return _fallback_prompt(title, visual_brief, brand_config)
+
+
+def _fallback_prompt(title: str, visual_brief: VisualBrief, brand_config: dict[str, Any]) -> str:
+    """Build a solid FLUX prompt without Claude when API credits are unavailable."""
+    vi      = brand_config.get("visual_identity", {})
     primary = vi.get("primary_color", "#0057FF")
     accent  = vi.get("accent_color",  "#00FF88")
     industry = brand_config.get("industry", "digital agency")
 
-    return (
-        f"Instagram post background image, 1:1 square format. "
-        f"{base} {mood} "
-        f"Color palette inspired by {primary} and {accent}. "
-        f"Industry: {industry}. "
-        "Ultra high quality, suitable for placing white text on top. "
-        "No text, no people, no logos, no watermarks."
+    mood_map = {
+        "dark":     f"deep dark background, dramatic shadows, high contrast, dominant {primary} tones with {accent} glowing accents",
+        "light":    f"bright airy composition, soft light, clean whitespace, {primary} and {accent} subtle accents",
+        "gradient": f"rich vibrant gradient from {primary} to {accent}, dynamic and energetic",
+    }
+    template_map = {
+        "bold_authority":    "bold geometric shapes, strong diagonal lines, commanding composition",
+        "premium_dark_tech": "glowing circuit-like abstract lines, particles floating in space, futuristic bloom effects",
+        "educational_card":  "clean grid lines, soft geometric shapes, calm and trustworthy atmosphere",
+        "problem_solution":  "split composition dark-to-light, diagonal transition, transformation metaphor",
+        "case_study_proof":  "upward trending abstract data shapes, confident dark slate, growth-inspired elements",
+        "minimal_founder":   "minimal editorial whitespace, single accent stripe, refined linen texture",
+        "clean_saas":        "rounded soft shapes, purple-blue gradient, airy modern SaaS aesthetic",
+        "image_led_overlay": "cinematic depth of field, rich bokeh, layered atmospheric gradients",
+    }
+    mood    = mood_map.get(visual_brief.color_mood, mood_map["dark"])
+    details = template_map.get(visual_brief.template_family, template_map["bold_authority"])
+
+    prompt = (
+        f"Instagram post background for a {industry} brand. {mood}. "
+        f"{details}. "
+        f"The lower half slightly darker for text readability. "
+        f"Ultra high quality, 4K, professional. "
+        f"No text, no letters, no logos, no watermarks, no UI."
     )
+    logger.info(f"FLUX prompt (fallback) → {prompt[:120]}…")
+    return prompt
 
 
 # ── Text overlay helpers ──────────────────────────────────────────────────────
@@ -198,7 +220,7 @@ class AIRenderer(DesignRendererInterface):
         brand_config: dict[str, Any],
         input_image_path: str | None = None,
     ) -> bytes:
-        prompt = _build_prompt(visual_brief, brand_config)
+        prompt = _build_prompt(copy_data, visual_brief, brand_config)
         img    = self._generate_background(prompt)
         _apply_text_overlay(img, copy_data, layout, brand_config, visual_brief)
 

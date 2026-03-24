@@ -70,6 +70,10 @@ class Settings(BaseSettings):
     canva_api_key: str = ""
     canva_template_id: str = ""
 
+    gemini_api_key: str = ""
+    huggingface_token: str = ""
+    image_renderer: str = "pillow"   # pillow | ai
+
     webhook_secret: str = ""
     webhook_publish_url: str = ""
 

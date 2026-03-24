@@ -10,11 +10,20 @@ from typing import Any
 from loguru import logger
 
 from app.config import get_settings
-from app.services.design_renderer_interface import VisualBrief, LayoutMap
+from app.services.design_renderer_interface import DesignRendererInterface, VisualBrief, LayoutMap
 from app.services.layout_engine import layout_engine
 from app.services.renderers.pillow_renderer import pillow_renderer
 
 settings = get_settings()
+
+
+def _get_renderer() -> DesignRendererInterface:
+    """Return the active renderer based on IMAGE_RENDERER env setting."""
+    renderer = get_settings().image_renderer.lower()
+    if renderer == "ai":
+        from app.services.renderers.ai_renderer import ai_renderer
+        return ai_renderer
+    return pillow_renderer
 
 
 class ImageGenerator:
@@ -67,7 +76,8 @@ class ImageGenerator:
             f"mood={visual_brief.color_mood} brand={brand_id}"
         )
 
-        return pillow_renderer.render(
+        renderer = _get_renderer()
+        return renderer.render(
             copy_data=copy_data,
             visual_brief=visual_brief,
             layout=layout,

@@ -9,7 +9,7 @@ from PIL import ImageFont
 from loguru import logger
 
 # Font paths relative to project root (renderers/ → services/ → app/ → postforge/)
-_FONTS_DIR = Path(__file__).parents[2] / "fonts"
+_FONTS_DIR = Path(__file__).parents[3] / "fonts"
 _BOLD_PATH = _FONTS_DIR / "Bold.ttf"
 _REGULAR_PATH = _FONTS_DIR / "Regular.ttf"
 

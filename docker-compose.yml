@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  postforge:
+    build: .
+    container_name: postforge
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      # Persistent storage — mounted from host
+      - ./input:/app/input
+      - ./output:/app/output
+      - ./config:/app/config
+      - ./assets:/app/assets
+      - ./fonts:/app/fonts
+      - ./postforge.db:/app/postforge.db
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: Nginx reverse proxy for production
+  # nginx:
+  #   image: nginx:alpine
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf
+  #   depends_on:
+  #     - postforge

@@ -1,0 +1,246 @@
+{
+  "id": "confluex",
+  "name": "Confluex",
+  "description": "Agencia digital especializada en automatización, desarrollo web, inteligencia artificial y diseño para empresas en Latinoamérica.",
+  "active": true,
+
+  "business": {
+    "tagline": "Donde la tecnología y el negocio se encuentran",
+    "mission": "Transformar empresas latinoamericanas con tecnología accesible, automatización inteligente y diseño que convierte.",
+    "founded": "2023",
+    "location": "Latinoamérica (remoto)",
+    "website": "https://www.confluex.dev",
+    "instagram": "@confluex.dev",
+
+    "services": [
+      {
+        "id": "automatizacion",
+        "name": "Automatización de Procesos",
+        "description": "Eliminamos tareas manuales y repetitivas usando herramientas como Make, n8n, Zapier e IA. Flujos automáticos que trabajan mientras duermes.",
+        "pain_solved": "Tiempo perdido en tareas repetitivas, errores humanos, costos operativos altos",
+        "result": "Hasta 80% de reducción en tiempo operativo, cero errores en procesos críticos",
+        "keywords": ["automatización", "workflows", "Make", "n8n", "Zapier", "IA", "procesos", "eficiencia"]
+      },
+      {
+        "id": "desarrollo_web",
+        "name": "Desarrollo Web",
+        "description": "Sitios web y aplicaciones modernas, rápidas y orientadas a conversión. Desde landing pages hasta plataformas SaaS.",
+        "pain_solved": "Sitio web lento, desactualizado o que no convierte visitantes en clientes",
+        "result": "Sitios que cargan en < 2 segundos, diseñados para convertir y escalar",
+        "keywords": ["desarrollo web", "landing page", "web app", "React", "Next.js", "conversión", "UX"]
+      },
+      {
+        "id": "ia_integracion",
+        "name": "Integración de IA",
+        "description": "Implementamos modelos de IA (Claude, GPT, Gemini) dentro de los procesos del negocio: chatbots, generación de contenido, análisis de datos y más.",
+        "pain_solved": "Competencia con más recursos, falta de personalización a escala, análisis manual de datos",
+        "result": "Ventaja competitiva real usando IA que antes era solo para grandes empresas",
+        "keywords": ["inteligencia artificial", "chatbot", "automatización IA", "Claude", "GPT", "LLM"]
+      },
+      {
+        "id": "diseno_digital",
+        "name": "Diseño Digital",
+        "description": "Identidad visual, diseño UI/UX, branding y piezas digitales que comunican profesionalismo y generan confianza.",
+        "pain_solved": "Imagen poco profesional, inconsistencia visual, diseño que no comunica valor",
+        "result": "Marca que inspira confianza y diferencia del mercado desde el primer contacto"
+      },
+      {
+        "id": "marketing_digital",
+        "name": "Marketing Digital",
+        "description": "Estrategia, contenido y gestión de redes sociales con enfoque en resultados medibles.",
+        "pain_solved": "Inversión en marketing sin retorno claro, contenido sin estrategia, crecimiento estancado",
+        "result": "Audiencia que crece, leads calificados y ROI medible"
+      }
+    ],
+
+    "icp": {
+      "primary": "Dueños y gerentes de PYMES en LATAM (México, Colombia, Argentina, Chile, Perú) con equipos de 5-50 personas que quieren crecer digitalmente pero no tienen equipo tech interno.",
+      "secondary": "Startups en etapa temprana que necesitan un socio tecnológico para construir rápido y bien.",
+      "tertiary": "Profesionales independientes y agencias que quieren agregar servicios tech a su portafolio.",
+      "age_range": "28-50 años",
+      "income": "Negocio con ingresos de $5K-$200K USD/mes",
+      "mindset": "Ambicioso, orientado a resultados, cansado de soluciones que no funcionan, valora el tiempo"
+    },
+
+    "pain_points": [
+      "Pierden horas semanales en tareas manuales y repetitivas",
+      "Su sitio web no genera clientes ni refleja el valor real de su negocio",
+      "No pueden competir con empresas más grandes en tecnología",
+      "Contratan freelancers que desaparecen o no entregan calidad",
+      "No saben cómo usar la IA sin gastar fortunas",
+      "Sus procesos no escalan: lo que funciona para 10 clientes falla con 100",
+      "Invierten en marketing sin saber qué funciona ni medir resultados",
+      "Tienen datos valiosos pero no saben cómo usarlos"
+    ],
+
+    "value_propositions": [
+      "Implementamos en semanas, no meses — resultados reales, no promesas",
+      "Tecnología de grandes empresas al alcance de tu PYME",
+      "Un equipo completo (tech + diseño + estrategia) por menos que un empleado",
+      "Nos enfocamos en ROI: cada proyecto se justifica con números",
+      "No te vendemos software que no vas a usar — construimos lo que realmente necesitas",
+      "Somos tu equipo tech, no tu proveedor"
+    ],
+
+    "differentiators": [
+      "Especialización en LATAM — entendemos el mercado, el idioma y los procesos locales",
+      "Metodología ágil con resultados visibles desde la semana 1",
+      "Combinamos automatización + diseño + desarrollo en un solo equipo",
+      "Pensamos como socios de negocio, no como desarrolladores de código"
+    ],
+
+    "social_proof": [
+      "Procesos automatizados que ahorran +40 horas semanales a nuestros clientes",
+      "Clientes en México, Colombia, Argentina y España",
+      "Proyectos entregados en tiempo y forma con documentación completa"
+    ]
+  },
+
+  "voice": {
+    "tone": "directo, confiable, sin bullshit, técnicamente competente pero humanamente accesible",
+    "language": "es",
+    "personality": "El amigo brillante que trabaja en tech y te da consejos reales, sin venderte humo",
+    "writing_style": "párrafos cortos, frases directas, sin adornos innecesarios, con datos cuando aplica",
+    "keywords": [
+      "resultados", "automatiza", "escala", "construye", "implementa", "transforma",
+      "eficiencia", "sin excusas", "real", "funciona", "crece", "conecta", "integra"
+    ],
+    "power_words": [
+      "sin contratar", "desde semana 1", "mientras duermes", "sin código", "en minutos",
+      "cero errores", "x veces más rápido", "tu equipo tech", "resultados medibles"
+    ],
+    "avoid": [
+      "jerga genérica (innovación disruptiva, sinergia, ecosistema)",
+      "promesas vagas sin números",
+      "tecnicismos que confunden",
+      "tono corporativo frío",
+      "clichés de agencia (soluciones 360, potenciamos tu marca)"
+    ],
+    "examples": {
+      "good": [
+        "Automatizamos tu facturación. De 3 horas manuales a 4 minutos automáticos.",
+        "Tu sitio web debería traerte clientes mientras dormís. ¿El tuyo lo hace?",
+        "No necesitás un equipo tech de 10 personas. Nos tenés a nosotros."
+      ],
+      "bad": [
+        "Potenciamos tu presencia digital con soluciones innovadoras",
+        "Transformamos tu negocio con tecnología de vanguardia",
+        "Somos tu aliado estratégico en la transformación digital"
+      ]
+    }
+  },
+
+  "content_strategy": {
+    "pillars": [
+      {
+        "id": "educacion",
+        "name": "Educar sin pedir nada",
+        "description": "Tips, tutoriales y conocimiento que la audiencia puede usar hoy. Posiciona como experto.",
+        "ratio": "35%",
+        "examples": ["Cómo automatizar X en 3 pasos", "5 errores que cometen las PYMES con su web", "Herramienta del día: n8n"]
+      },
+      {
+        "id": "problema_solucion",
+        "name": "Problema → Solución",
+        "description": "Nombrar el dolor exacto del ICP y mostrar cómo Confluex lo resuelve, con datos.",
+        "ratio": "30%",
+        "examples": ["¿Perdés horas en facturas manuales?", "Tu web no convierte porque...", "El error más caro que cometen los negocios online"]
+      },
+      {
+        "id": "prueba_social",
+        "name": "Prueba Social y Resultados",
+        "description": "Casos reales, métricas, antes/después. Sin números inventados.",
+        "ratio": "15%",
+        "examples": ["Cliente ahorró 40h/semana", "De 0 a 200 leads/mes", "Antes: 3 horas. Después: 8 minutos."]
+      },
+      {
+        "id": "marca_cultura",
+        "name": "Marca y Cultura",
+        "description": "Quiénes son, cómo piensan, behind the scenes. Humaniza la marca.",
+        "ratio": "10%",
+        "examples": ["Por qué construimos Confluex", "Herramientas que usamos", "Así trabajamos con clientes remotos"]
+      },
+      {
+        "id": "conversion",
+        "name": "Conversión Directa",
+        "description": "Ofertas claras, servicios, propuesta de valor directa.",
+        "ratio": "10%",
+        "examples": ["Servicio del mes", "Primera consulta gratis", "Auditoría gratuita de tu web"]
+      }
+    ],
+
+    "copy_frameworks": {
+      "educational_tip": {
+        "name": "Tip + Contexto + Aplicación",
+        "structure": "Hook (dato o pregunta) → El problema que resuelve este tip → Desarrollo del tip (2-3 puntos) → Cómo Confluex lo implementa → CTA suave"
+      },
+      "problem_solution": {
+        "name": "PAS (Problem-Agitate-Solution)",
+        "structure": "Nombrar el dolor exacto → Amplificar por qué duele / qué pasa si no lo resuelves → Presentar la solución concreta → Prueba o resultado → CTA"
+      },
+      "service_promo": {
+        "name": "AIDA (Attention-Interest-Desire-Action)",
+        "structure": "Hook de atención → Qué hacemos y por qué importa → Beneficio específico con número → Prueba social o garantía → CTA directo"
+      },
+      "branding": {
+        "name": "Punto de Vista",
+        "structure": "Declaración de posición clara → Por qué pensamos así → Evidencia o razonamiento → Invitación a la conversación"
+      },
+      "project_highlight": {
+        "name": "Historia de Resultado",
+        "structure": "Situación inicial (el problema del cliente) → Lo que implementamos → Resultado en números → Lección o takeaway → CTA"
+      },
+      "announcement": {
+        "name": "Lanzamiento",
+        "structure": "Hook de novedad → Qué es y por qué importa → Para quién es → Cómo acceder → CTA urgente"
+      },
+      "automation": {
+        "name": "Antes / Después",
+        "structure": "ANTES: cómo se hace hoy (lento, manual, con error) → DESPUÉS: cómo lo automatizamos → Cuánto tiempo/dinero se ahorra → Cómo lo hacemos nosotros → CTA"
+      }
+    },
+
+    "hashtag_strategy": {
+      "always_include": ["#Confluex"],
+      "brand_pool": [
+        "#AutomatizaciónDigital", "#TransformaciónDigital", "#AgenciaDigital",
+        "#TechLatam", "#DesarrolloWeb", "#InteligenciaArtificial"
+      ],
+      "by_service": {
+        "automatizacion": ["#Automatización", "#n8n", "#Make", "#Zapier", "#WorkflowAutomation", "#NoCode", "#LowCode", "#ProcesoAutomatizado", "#ProductividadDigital"],
+        "desarrollo_web": ["#DesarrolloWeb", "#WebDesign", "#LandingPage", "#UXDesign", "#ReactJS", "#NextJS", "#WebDevelopment", "#SitioWeb"],
+        "ia_integracion": ["#InteligenciaArtificial", "#IA", "#ChatGPT", "#Claude", "#AIAutomation", "#MachineLearning", "#AIBusiness", "#NegociosConIA"],
+        "diseno_digital": ["#DiseñoDigital", "#BrandDesign", "#UIDesign", "#UXDesign", "#DiseñoGrafico", "#Branding", "#IdentidadVisual"],
+        "marketing_digital": ["#MarketingDigital", "#RedesSociales", "#ContentMarketing", "#GrowthMarketing", "#SocialMediaMarketing"]
+      },
+      "audience": ["#EmpresariosLatam", "#PymeDigital", "#EmprendedoresDigitales", "#StartupLatam", "#NegocioDigital", "#EmprendimientoLatino"],
+      "geo": ["#Colombia", "#Mexico", "#Argentina", "#Chile", "#Peru", "#Latinoamerica", "#LATAM"]
+    }
+  },
+
+  "visual_identity": {
+    "primary_color": "#0057FF",
+    "secondary_color": "#00D4FF",
+    "accent_color": "#00FF88",
+    "dark_color": "#080C18",
+    "light_color": "#FFFFFF",
+    "surface_color": "#0F1629",
+    "gradient_start": "#0057FF",
+    "gradient_end": "#00D4FF"
+  },
+
+  "brand_assets": {
+    "logo_path": "assets/confluex/logo.png",
+    "logo_white_path": "assets/confluex/logo_white.png",
+    "watermark_text": "@confluex.dev",
+    "instagram_handle": "@confluex.dev",
+    "website": "https://www.confluex.dev"
+  },
+
+  "layout": {
+    "logo_position": "bottom_right",
+    "watermark_position": "bottom_left",
+    "padding": 60,
+    "overlay_opacity": 0.75
+  }
+}

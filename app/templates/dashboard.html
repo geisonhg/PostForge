@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_styles %}
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid rgba(0,87,255,0.2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+}
+.stat-value { font-size: 2rem; font-weight: 700; color: var(--secondary); line-height: 1; }
+.stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.3rem; }
+.job-table { width: 100%; border-collapse: collapse; }
+.job-table th { text-align: left; padding: 0.75rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid rgba(0,87,255,0.15); }
+.job-table td { padding: 0.85rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.875rem; }
+.job-table tr:last-child td { border-bottom: none; }
+.job-table tr:hover td { background: rgba(0,87,255,0.05); }
+.job-id { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); }
+.create-form { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; align-items: end; }
+.filters-row { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
+.filters-row select { width: auto; }
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="flex justify-between flex-center mb-2 mt-2">
+  <div>
+    <h1 style="font-size:1.75rem; font-weight:700;">Content Dashboard</h1>
+    <p class="text-muted mt-1">{{ total }} job(s) total</p>
+  </div>
+</div>
+
+<!-- Quick Create Form -->
+<div class="card mb-2">
+  <div class="card-header">Crear nuevo post</div>
+  <div id="form-error" class="alert alert-error" style="display:none;"></div>
+  <form id="create-form" enctype="multipart/form-data">
+    <div class="create-form">
+      <div class="form-group" style="margin:0">
+        <label>Idea / Tema</label>
+        <input type="text" name="input_text" placeholder="Ej: Automatizamos tu marketing con IA" />
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>Tipo de Campaña</label>
+        <select name="campaign_type">
+          <option value="">-- Opcional --</option>
+          <option value="service_promo">Promo de Servicio</option>
+          <option value="educational_tip">Tip Educativo</option>
+          <option value="branding">Branding</option>
+          <option value="problem_solution">Problema / Solución</option>
+          <option value="announcement">Anuncio</option>
+          <option value="project_highlight">Proyecto Destacado</option>
+          <option value="automation">Automatización</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>Imagen (opcional)</label>
+        <input type="file" name="image" accept="image/*" style="padding:0.45rem" />
+      </div>
+      <div>
+        <input type="hidden" name="input_type" value="text" />
+        <input type="hidden" name="brand_id" value="confluex" />
+        <button type="submit" id="submit-btn" class="btn btn-accent" style="white-space:nowrap">
+          + Generar Post
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Filters -->
+<div class="filters-row">
+  <span class="text-muted" style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em;">Filtrar:</span>
+  <a href="/review" class="btn btn-ghost btn-sm {% if not selected_status %}btn-primary{% endif %}">Todos</a>
+  {% for s in statuses %}
+  <a href="/review?status={{ s }}" class="btn btn-ghost btn-sm">
+    <span class="badge badge-{{ s }}">{{ s }}</span>
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Jobs Table -->
+<div class="card" style="padding:0; overflow:hidden;">
+  {% if jobs %}
+  <table class="job-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Marca</th>
+        <th>Tipo</th>
+        <th>Input</th>
+        <th>Estado</th>
+        <th>Creado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr>
+        <td class="job-id">{{ job.id[:8] }}…</td>
+        <td>
+          <span style="color:var(--secondary); font-weight:600;">{{ job.brand_id }}</span>
+        </td>
+        <td>{{ job.input_type.value }}</td>
+        <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          {% if job.input_text %}{{ job.input_text[:60] }}{% elif job.campaign_type %}[{{ job.campaign_type }}]{% else %}—{% endif %}
+        </td>
+        <td><span class="badge badge-{{ job.status.value }}">{{ job.status.value }}</span></td>
+        <td class="text-muted">{{ job.created_at.strftime('%d/%m %H:%M') }}</td>
+        <td>
+          <a href="/review/{{ job.id }}" class="btn btn-ghost btn-sm">Ver</a>
+          {% if job.status.value == 'review' %}
+          <a href="/jobs/{{ job.id }}/approve" class="btn btn-accent btn-sm" onclick="return fetch(this.href,{method:'POST'}).then(()=>location.reload())&&false">Aprobar</a>
+          {% endif %}
+          {% if job.output_image_path %}
+          <a href="/jobs/{{ job.id }}/image" class="btn btn-primary btn-sm" download>Imagen</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="padding:3rem; text-align:center; color:var(--text-muted);">
+    <div style="font-size:3rem; margin-bottom:1rem;">📭</div>
+    <div>No hay jobs todavía. Crea el primero arriba.</div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+// ── Crear job y redirigir al detalle ────────────────────────────────────────
+document.getElementById('create-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const btn = document.getElementById('submit-btn');
+  const errorBox = document.getElementById('form-error');
+  const form = e.target;
+
+  // Validar que haya al menos un campo
+  const text = form.input_text.value.trim();
+  const campaign = form.campaign_type.value;
+  const image = form.image.files[0];
+  if (!text && !campaign && !image) {
+    errorBox.textContent = 'Escribe una idea, elige un tipo de campaña o sube una imagen.';
+    errorBox.style.display = 'block';
+    return;
+  }
+  errorBox.style.display = 'none';
+
+  // Estado de carga
+  btn.disabled = true;
+  btn.textContent = 'Creando job…';
+
+  // Si hay imagen, el tipo es "image"; si no, "text"
+  const inputType = image ? 'image' : (text ? 'text' : 'campaign');
+  form.querySelector('[name="input_type"]').value = inputType;
+
+  try {
+    const formData = new FormData(form);
+    const res = await fetch('/jobs/', { method: 'POST', body: formData });
+    const job = await res.json();
+
+    if (!res.ok) {
+      throw new Error(job.detail || 'Error al crear el job.');
+    }
+
+    // Redirigir al detalle del job recién creado
+    window.location.href = `/review/${job.id}`;
+
+  } catch (err) {
+    errorBox.textContent = err.message;
+    errorBox.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '+ Generar Post';
+  }
+});
+
+// ── Auto-refresh si hay jobs procesándose ───────────────────────────────────
+const inProgress = {{ jobs | selectattr('status.value', 'in', ['pending','analyzing','generating_copy','generating_image']) | list | length }};
+if (inProgress > 0) {
+  setTimeout(() => location.reload(), 8000);
+}
+</script>
+
+{% endblock %}

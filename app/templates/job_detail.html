@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+{% block title %}Job {{ job.id[:8] }}{% endblock %}
+
+{% block extra_styles %}
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.preview-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid rgba(0,87,255,0.2);
+}
+.copy-section { margin-bottom: 1.25rem; }
+.copy-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.35rem;
+}
+.copy-value {
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.6;
+  background: rgba(0,87,255,0.05);
+  border: 1px solid rgba(0,87,255,0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  white-space: pre-wrap;
+}
+.hashtags-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.hashtag {
+  background: rgba(0,87,255,0.15);
+  color: var(--secondary);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+}
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  background: var(--surface);
+  border-top: 1px solid rgba(0,87,255,0.2);
+  padding: 1rem 2rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 0 -2rem;
+}
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<div class="flex-center gap-1 mt-2 mb-2" style="font-size:0.85rem; color:var(--text-muted);">
+  <a href="/review" style="color:var(--text-muted);">Dashboard</a>
+  <span>/</span>
+  <span style="color:var(--text);">Job {{ job.id[:8] }}…</span>
+  <span class="badge badge-{{ job.status.value }}" style="margin-left:0.5rem;">{{ job.status.value }}</span>
+</div>
+
+<!-- Main Grid -->
+<div class="detail-grid">
+
+  <!-- Left: Image Preview + Info -->
+  <div>
+    <div class="card">
+      <div class="card-header">Arte Generado</div>
+      {% if image_exists %}
+      <img src="{{ image_url }}" alt="Generated Post" class="preview-image" />
+      <div class="mt-2 flex gap-1">
+        <a href="{{ image_url }}" class="btn btn-primary btn-sm" download="postforge_{{ job.id }}.png">
+          Descargar PNG
+        </a>
+      </div>
+      {% else %}
+      <div style="aspect-ratio:1; display:flex; align-items:center; justify-content:center; background:var(--surface2); border-radius:var(--radius); color:var(--text-muted);">
+        {% if job.status.value in ['pending','analyzing','generating_copy','generating_image'] %}
+        <div style="text-align:center;">
+          <div style="font-size:2rem;">⚙️</div>
+          <div class="mt-1">Generando…</div>
+          <script>setTimeout(()=>location.reload(), 5000)</script>
+        </div>
+        {% elif job.status.value == 'failed' %}
+        <div style="text-align:center; color:var(--danger);">
+          <div style="font-size:2rem;">✗</div>
+          <div class="mt-1">Generación fallida</div>
+        </div>
+        {% else %}
+        <div>Sin imagen</div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Strategy Brief Card -->
+    {% if job.job_data and job.job_data.strategy_brief %}
+    {% set brief = job.job_data.strategy_brief %}
+    <div class="card">
+      <div class="card-header">Decisiones del Agente</div>
+      <div style="display:grid; gap:0.6rem; font-size:0.82rem;">
+
+        {% if brief.central_message %}
+        <div>
+          <span style="color:var(--accent); font-weight:700; text-transform:uppercase; font-size:0.7rem; letter-spacing:0.08em;">Mensaje Central</span>
+          <div style="color:var(--text); margin-top:0.2rem;">{{ brief.central_message }}</div>
+        </div>
+        {% endif %}
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+          {% if brief.framework %}
+          <div style="background:rgba(0,87,255,0.08); border-radius:8px; padding:0.5rem;">
+            <div style="color:var(--text-muted); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em;">Framework</div>
+            <div style="color:var(--secondary); font-weight:600; margin-top:0.15rem;">{{ brief.framework }}</div>
+          </div>
+          {% endif %}
+          {% if brief.content_pillar %}
+          <div style="background:rgba(0,87,255,0.08); border-radius:8px; padding:0.5rem;">
+            <div style="color:var(--text-muted); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em;">Pilar</div>
+            <div style="color:var(--secondary); font-weight:600; margin-top:0.15rem;">{{ brief.content_pillar }}</div>
+          </div>
+          {% endif %}
+          {% if brief.urgency_level %}
+          <div style="background:rgba(0,87,255,0.08); border-radius:8px; padding:0.5rem;">
+            <div style="color:var(--text-muted); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em;">Urgencia</div>
+            <div style="color:var(--text); margin-top:0.15rem;">{{ brief.urgency_level }}</div>
+          </div>
+          {% endif %}
+          {% if brief.cta_type %}
+          <div style="background:rgba(0,87,255,0.08); border-radius:8px; padding:0.5rem;">
+            <div style="color:var(--text-muted); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em;">CTA</div>
+            <div style="color:var(--text); margin-top:0.15rem;">{{ brief.cta_type }}</div>
+          </div>
+          {% endif %}
+        </div>
+
+        {% if brief.emotional_angle %}
+        <div>
+          <span style="color:var(--text-muted); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em;">Ángulo Emocional</span>
+          <div style="color:var(--text); margin-top:0.2rem;">{{ brief.emotional_angle }}</div>
+        </div>
+        {% endif %}
+
+        {% if brief.main_objection %}
+        <div>
+          <span style="color:var(--text-muted); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em;">Objeción Rota</span>
+          <div style="color:var(--text); margin-top:0.2rem;">{{ brief.main_objection }}</div>
+          {% if brief.objection_response %}
+          <div style="color:var(--accent); margin-top:0.2rem; font-size:0.8rem;">→ {{ brief.objection_response }}</div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if brief.suggested_stat %}
+        <div style="background:rgba(0,255,136,0.06); border:1px solid rgba(0,255,136,0.2); border-radius:8px; padding:0.5rem;">
+          <span style="color:var(--accent); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em;">Dato Usado</span>
+          <div style="color:var(--text); margin-top:0.2rem;">{{ brief.suggested_stat }}</div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Job Info Card -->
+    <div class="card">
+      <div class="card-header">Info del Job</div>
+      <table style="width:100%; font-size:0.82rem; border-collapse:collapse;">
+        <tr>
+          <td style="color:var(--text-muted); padding:0.28rem 0;">ID</td>
+          <td style="font-family:monospace; font-size:0.75rem; color:var(--text); padding:0.28rem 0;">{{ job.id }}</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-muted); padding:0.28rem 0;">Marca</td>
+          <td style="color:var(--secondary); font-weight:600; padding:0.28rem 0;">{{ job.brand_id }}</td>
+        </tr>
+        {% if job.campaign_type %}
+        <tr>
+          <td style="color:var(--text-muted); padding:0.28rem 0;">Campaña</td>
+          <td style="padding:0.28rem 0;">{{ job.campaign_type }}</td>
+        </tr>
+        {% endif %}
+        <tr>
+          <td style="color:var(--text-muted); padding:0.28rem 0;">Creado</td>
+          <td style="padding:0.28rem 0;">{{ job.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+        </tr>
+        {% if job.completed_at %}
+        <tr>
+          <td style="color:var(--text-muted); padding:0.28rem 0;">Completado</td>
+          <td style="padding:0.28rem 0;">{{ job.completed_at.strftime('%d/%m/%Y %H:%M') }}</td>
+        </tr>
+        {% endif %}
+      </table>
+      {% if job.error_message %}
+      <div class="alert alert-error mt-2">
+        <strong>Error:</strong> {{ job.error_message }}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right: Copy Preview -->
+  <div>
+    <div class="card">
+      <div class="card-header">Copy Generado</div>
+
+      {% if job.generated_overlay_text %}
+      <div class="copy-section">
+        <div class="copy-label">Overlay Text (Arte)</div>
+        <div class="copy-value" style="font-size:1.1rem; font-weight:700; color:var(--accent);">{{ job.generated_overlay_text }}</div>
+      </div>
+      {% endif %}
+
+      {% if job.generated_title %}
+      <div class="copy-section">
+        <div class="copy-label">Título</div>
+        <div class="copy-value">{{ job.generated_title }}</div>
+      </div>
+      {% endif %}
+
+      {% if job.generated_hook %}
+      <div class="copy-section">
+        <div class="copy-label">Hook</div>
+        <div class="copy-value">{{ job.generated_hook }}</div>
+      </div>
+      {% endif %}
+
+      {% if job.generated_caption_long %}
+      <div class="copy-section">
+        <div class="copy-label">Caption Largo</div>
+        <div class="copy-value">{{ job.generated_caption_long }}</div>
+      </div>
+      {% endif %}
+
+      {% if job.generated_caption_short %}
+      <div class="copy-section">
+        <div class="copy-label">Caption Corto</div>
+        <div class="copy-value">{{ job.generated_caption_short }}</div>
+      </div>
+      {% endif %}
+
+      {% if job.generated_cta %}
+      <div class="copy-section">
+        <div class="copy-label">CTA</div>
+        <div class="copy-value" style="color:var(--accent); font-weight:600;">{{ job.generated_cta }}</div>
+      </div>
+      {% endif %}
+
+      {% if job.generated_hashtags %}
+      <div class="copy-section">
+        <div class="copy-label">Hashtags</div>
+        <div class="hashtags-box">
+          {% for tag in job.generated_hashtags.split() %}
+          <span class="hashtag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if job.input_text %}
+      <div class="copy-section mt-2">
+        <div class="copy-label" style="color:var(--text-muted);">Input Original</div>
+        <div class="copy-value" style="color:var(--text-muted);">{{ job.input_text }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Action Bar -->
+<div class="action-bar">
+  <a href="/review" class="btn btn-ghost">← Volver</a>
+
+  {% if can_approve %}
+  <button class="btn btn-accent" onclick="approveJob()">Aprobar Post</button>
+  {% endif %}
+
+  {% if can_publish %}
+  <button class="btn btn-primary" onclick="publishJob()">Publicar en Instagram</button>
+  {% endif %}
+
+  {% if job.status.value == 'failed' %}
+  <button class="btn btn-ghost" onclick="reprocessJob()">Reintentar</button>
+  {% endif %}
+
+  {% if image_exists %}
+  <a href="{{ image_url }}" class="btn btn-ghost btn-sm" download>Descargar PNG</a>
+  {% endif %}
+
+  <span class="text-muted" style="margin-left:auto; font-size:0.8rem;">
+    Job {{ job.id[:8] }} · {{ job.brand_id }}
+  </span>
+</div>
+
+<script>
+async function approveJob() {
+  const res = await fetch('/jobs/{{ job.id }}/approve', { method: 'POST' });
+  if (res.ok) location.reload();
+  else alert('Error al aprobar el job.');
+}
+
+async function publishJob() {
+  if (!confirm('Publicar este post en Instagram?')) return;
+  const res = await fetch('/jobs/{{ job.id }}/publish', { method: 'POST' });
+  if (res.ok) location.reload();
+  else alert('Error al publicar.');
+}
+
+async function reprocessJob() {
+  const res = await fetch('/jobs/{{ job.id }}/process', { method: 'POST' });
+  if (res.ok) location.reload();
+  else alert('Error al reprocesar.');
+}
+
+// Clipboard copy for captions
+document.querySelectorAll('.copy-value').forEach(el => {
+  el.style.cursor = 'pointer';
+  el.title = 'Click para copiar';
+  el.addEventListener('click', () => {
+    navigator.clipboard.writeText(el.textContent.trim());
+    el.style.borderColor = 'var(--accent)';
+    setTimeout(() => el.style.borderColor = '', 800);
+  });
+});
+</script>
+
+{% endblock %}
